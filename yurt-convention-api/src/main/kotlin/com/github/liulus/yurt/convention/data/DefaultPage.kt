@@ -1,6 +1,4 @@
-package com.github.liulus.yurt.convention.page
-
-import kotlin.math.max
+package com.github.liulus.yurt.convention.data
 
 
 /**
@@ -16,11 +14,9 @@ data class DefaultPage<T>(
         override var totalRecords: Int,
 ) : Page<T> {
 
-    init {
-        totalRecords = max(totalRecords, results.size)
-    }
-
     constructor() : this(PageQuery.DEFAULT_PAGE_NUM, PageQuery.DEFAULT_PAGE_SIZE, emptyList(), 0)
+
+    constructor(results: List<T>) : this(PageQuery.DEFAULT_PAGE_NUM, PageQuery.DEFAULT_PAGE_SIZE, results, results.size)
 
     constructor(pageable: Pageable, results: List<T>, totalRecords: Int)
             : this(pageable.pageNum, pageable.pageSize, results, totalRecords)
@@ -28,6 +24,11 @@ data class DefaultPage<T>(
 
     override val totalPages: Int
         get() = (totalRecords - 1) / pageSize + 1
+
+
+    override fun <S> map(transformer: (T) -> S): Page<S> {
+        return DefaultPage(pageNum, pageSize, results.asSequence().map(transformer).toList(), totalRecords)
+    }
 
 
 }

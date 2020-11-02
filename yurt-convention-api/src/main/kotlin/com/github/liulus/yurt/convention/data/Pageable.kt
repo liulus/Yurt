@@ -1,4 +1,4 @@
-package com.github.liulus.yurt.convention.page
+package com.github.liulus.yurt.convention.data
 
 /**
  *

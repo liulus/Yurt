@@ -1,4 +1,4 @@
-package com.github.liulus.yurt.convention.page
+package com.github.liulus.yurt.convention.data
 
 /**
  *
@@ -40,10 +40,10 @@ interface Page<T> {
 
     /**
      * 映射成另外的一种分页对象
-     * @param converter 转换对象的函数接口
+     * @param transformer 转换对象的函数接口
      * @param <S> 另外的数据类型
-     * @return 分页对象
-    </S> */
-//    fun <S> map(converter: Function<in T, out S>?):Page<S>?
+     * @return 分页对象 S
+     */
+    fun <S> map(transformer: (T) -> S): Page<S>
 
 }

@@ -1,4 +1,4 @@
 rootProject.name = 'Yurt'
 include 'yurt-convention-api'
-include 'yurt-data'
-
+include 'yurt-data:yurt-data-jdbc'
+//findProject(':yurt-data:yurt-data-jdbc').name = 'yurt-data-jdbc'

@@ -1,4 +1,4 @@
-package com.github.liulus.yurt;
+package com.github.liulus.yurt.jdbc;
 
 /**
  * @author liulu

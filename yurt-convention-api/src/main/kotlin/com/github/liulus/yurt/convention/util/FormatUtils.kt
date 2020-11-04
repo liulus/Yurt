@@ -6,7 +6,7 @@ package com.github.liulus.yurt.convention.util
  * @version V1.0
  * @since 2020/11/2
  */
-object Formats {
+object FormatUtils {
 
 
     @JvmStatic

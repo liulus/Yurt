@@ -1,7 +1,8 @@
 package com.github.liulus.yurt;
 
-import com.github.liulus.yurt.convention.page.PageQuery;
-import com.github.liulus.yurt.convention.page.Pageable;
+
+import com.github.liulus.yurt.convention.data.PageQuery;
+import com.github.liulus.yurt.convention.data.Pageable;
 
 import java.util.Collections;
 import java.util.List;

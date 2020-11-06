@@ -26,7 +26,7 @@ configure(allprojects) { project ->
             mavenBom 'org.springframework.boot:spring-boot-dependencies:2.2.5.RELEASE'
         }
         dependencies {
-            dependency 'com.google.guava:guava:20.0'
+            dependency 'ch.vorburger.mariaDB4j:mariaDB4j:2.4.0'
             dependency 'javax.persistence:persistence-api:1.0'
         }
     }

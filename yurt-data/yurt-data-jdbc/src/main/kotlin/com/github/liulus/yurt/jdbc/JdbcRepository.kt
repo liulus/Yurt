@@ -14,6 +14,8 @@ interface JdbcRepository<E> {
 
     fun deleteById(id: Long): Int
 
-    fun selectById(id: Long): E
+    fun selectById(id: Long): E?
+
+    fun selectByIds(ids: Collection<Long>): List<E>
 
 }

@@ -1,14 +1,10 @@
 package com.github.liulus.yurt.jdbc
 
 import com.github.liulus.yurt.convention.util.NameUtils
+import org.springframework.beans.BeanUtils
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
-import java.net.URI
-import java.net.URL
-import java.time.temporal.Temporal
 import java.util.Collections
-import java.util.Date
-import java.util.Locale
 import javax.persistence.Column
 import javax.persistence.Id
 import javax.persistence.Table
@@ -44,9 +40,9 @@ class TableMetadata private constructor(eClass: Class<*>) {
 
     val entityClass: Class<*> = eClass
     val tableName: String
-    var idField: String? = null
+    var idField: String = ""
         private set
-    var idColumn: String? = null
+    lateinit var idColumn: String
         private set
     val fieldColumnMap: Map<String, String>
     val fieldTypeMap: Map<String, Class<*>>
@@ -67,7 +63,7 @@ class TableMetadata private constructor(eClass: Class<*>) {
             val columnName = column?.name ?: NameUtils.getUnderLineName(fieldName)
 
             // 主键信息 : 有 @Id 注解的字段，没有默认是 id
-            if (field.isAnnotationPresent(Id::class.java) || fieldName == "id" && idField == null) {
+            if (field.isAnnotationPresent(Id::class.java) || fieldName == "id" && idField.isEmpty()) {
                 this.idField = fieldName
                 this.idColumn = columnName
             }
@@ -81,29 +77,15 @@ class TableMetadata private constructor(eClass: Class<*>) {
 
 
     private fun shouldIgnore(field: Field): Boolean {
-        if (Modifier.isStatic(field.modifiers)
+        return Modifier.isStatic(field.modifiers)
                 || Modifier.isFinal(field.modifiers)
-                || field.isAnnotationPresent(Transient::class.java)) {
-            return true
-        }
-        val type = field.type
-        if (type.isPrimitive
-                || Integer::class.java.isAssignableFrom(type)
-                || Long::class.java.isAssignableFrom(type)
-                || Double::class.java.isAssignableFrom(type)
-                || Boolean::class.java.isAssignableFrom(type)
-                || Array<Byte>::class.java.isAssignableFrom(type)
-                || CharSequence::class.java.isAssignableFrom(type)
-                || Temporal::class.java.isAssignableFrom(type)
-                || Date::class.java.isAssignableFrom(type)
-                || Number::class.java.isAssignableFrom(type)
-                || Enum::class.java.isAssignableFrom(type)
-                || URI::class.java == type || URL::class.java == type
-                || Locale::class.java == type) {
-            return true
-        }
-        return false
+                || field.isAnnotationPresent(Transient::class.java)
+                || !BeanUtils.isSimpleProperty(field.type)
     }
+
+    val columns: String
+        get() = fieldColumnMap.values.joinToString(transform = { "${tableName}.$it" })
+
 
 }
 

@@ -12,6 +12,22 @@ import org.springframework.util.StringUtils
  */
 internal object SQLBuilder {
 
+    /**
+     * MySQL 分页，参数1 ：第几条开始( offset ); 参数2：查询多少条(pageSize)
+     */
+    private const val MYSQL_PAGE_SQL = "%s limit %d, %d "
+
+    /**
+     * DB2 分页，参数1 ：第几条开始( offset ); 参数2：第几条为止(maxResult)
+     */
+    private const val DB2_PAGE_SQL = "select * from ( select t.*, rownumber() over() rowid from ( %s ) t ) where rowid > %d ) and rowid <= %d "
+
+    /**
+     * Oracle 分页，参数1：第几条为止(maxResult); 参数2 ：第几条开始( offset )
+     */
+    private const val ORACLE_PAGE_SQL = "select * from (select t.*, rownum rowno from ( %s ) t where rownum <= %d ) where rowno > %d "
+
+
     @JvmStatic
     fun insertSQL(entity: Any): SQL {
         val eClass = entity.javaClass
@@ -69,6 +85,19 @@ internal object SQLBuilder {
         val tableMetadata = TableMetadata.forClass(entityClass)
         return SQL().DELETE_FROM(tableMetadata.tableName)
                 .WHERE(eq(tableMetadata.idColumn, "param"))
+    }
+
+    @JvmStatic
+    fun pageSQL(sql: SQL, dbName: String, pageNum: Int, pageSize: Int): String {
+        if (StringUtils.isEmpty(dbName)) {
+            throw UnsupportedOperationException("unsupported operation build page sql un_know database")
+        }
+        return when (dbName.toUpperCase()) {
+            "DB2" -> String.format(DB2_PAGE_SQL, sql.toString(), pageSize * (pageNum - 1), pageSize * pageNum)
+            "MYSQL" -> String.format(MYSQL_PAGE_SQL, sql.toString(), pageSize * (pageNum - 1), pageSize)
+            "ORACLE" -> String.format(ORACLE_PAGE_SQL, sql.toString(), pageSize * pageNum, pageSize * (pageNum - 1))
+            else -> throw UnsupportedOperationException("unsupported operation build page sql for database: $dbName")
+        }
     }
 
 

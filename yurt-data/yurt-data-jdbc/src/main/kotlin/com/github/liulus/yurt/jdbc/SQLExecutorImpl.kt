@@ -114,6 +114,16 @@ class SQLExecutorImpl(
         return namedParameterJdbcOperations.queryForObject(sql.toCountSql(), sqlParams(params), Long::class.java) ?: 0L
     }
 
+    override fun <E> selectForPage(sql: SQL, params: Any?, pageNum: Int, pageSize: Int, requiredType: Class<E>): List<E> {
+        val pageSQL = SQLBuilder.pageSQL(sql, dbName, pageNum, pageSize)
+        if (BeanUtils.isSimpleProperty(requiredType)) {
+            return namedParameterJdbcOperations.queryForList(pageSQL, sqlParams(params), requiredType)
+        }
+        val rowMapper = AnnotationRowMapper(requiredType)
+        return namedParameterJdbcOperations.query(pageSQL, sqlParams(params), rowMapper)
+
+    }
+
     override fun update(sql: SQL, params: Any?): Int {
         return namedParameterJdbcOperations.update(sql.toString(), sqlParams(params))
     }

@@ -22,6 +22,8 @@ interface SQLExecutor {
 
     fun <E> selectForList(sql: SQL, params: Any?, requiredType: Class<E>): List<E>
 
+    fun <E> selectForPage(sql: SQL, params: Any?, pageNum: Int, pageSize: Int, requiredType: Class<E>): List<E>
+
     fun count(sql: SQL, params: Any?): Long
 
     fun update(sql: SQL, params: Any?): Int

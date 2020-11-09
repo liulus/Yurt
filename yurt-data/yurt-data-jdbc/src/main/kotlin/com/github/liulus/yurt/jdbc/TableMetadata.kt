@@ -16,7 +16,7 @@ import javax.persistence.Transient
  * @version V1.0
  * @since 2020/11/2
  */
-class TableMetadata private constructor(eClass: Class<*>) {
+internal class TableMetadata private constructor(eClass: Class<*>) {
 
     companion object {
         @JvmStatic

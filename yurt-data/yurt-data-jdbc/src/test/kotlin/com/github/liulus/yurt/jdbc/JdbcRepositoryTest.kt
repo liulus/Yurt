@@ -1,7 +1,7 @@
 package com.github.liulus.yurt.jdbc
 
 import com.github.liulus.yurt.configure.SpringConfig
-import com.github.liulus.yurt.model.Goods
+import com.github.liulus.yurt.model.GoodsQuery
 import com.github.liulus.yurt.repository.GoodsRepository
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,11 +38,12 @@ class JdbcRepositoryTest {
     @Test
     fun testSelect2() {
 
-        val goods = Goods()
-        goods.gmtCreated = LocalDateTime.now().minusDays(1L)
+        val goods = GoodsQuery()
+        goods.pageSize = 2
+        goods.startTime = LocalDateTime.now().minusDays(1L)
 
 
-        val method = interfaceClass.getDeclaredMethod("selectByQuery", Goods::class.java)
+        val method = interfaceClass.getDeclaredMethod("selectByQuery", GoodsQuery::class.java)
         var result = SQLContext.getContext(interfaceClass, method).execute(sqlExecutor, arrayOf(goods))
 
         println(method.name)

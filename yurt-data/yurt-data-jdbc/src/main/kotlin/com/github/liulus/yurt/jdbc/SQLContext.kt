@@ -1,6 +1,10 @@
 package com.github.liulus.yurt.jdbc
 
+import com.github.liulus.yurt.convention.data.Page
+import com.github.liulus.yurt.convention.data.PageList
+import com.github.liulus.yurt.convention.data.Pageable
 import com.github.liulus.yurt.convention.util.Asserts
+import com.github.liulus.yurt.convention.util.Pages
 import com.github.liulus.yurt.convention.util.SpelUtils
 import com.github.liulus.yurt.jdbc.annotation.Delete
 import com.github.liulus.yurt.jdbc.annotation.If
@@ -9,6 +13,7 @@ import com.github.liulus.yurt.jdbc.annotation.Select
 import com.github.liulus.yurt.jdbc.annotation.Update
 import org.springframework.core.ResolvableType
 import org.springframework.core.annotation.AnnotationUtils
+import org.springframework.util.StringUtils
 import java.lang.reflect.Method
 import java.util.Optional
 
@@ -48,6 +53,11 @@ internal class SQLContext private constructor(
     private var select: Select? = null
     private var update: Update? = null
     private var delete: Delete? = null
+    private var returnType: Class<*>
+    private var genericReturnType: Class<*>? = null
+    private var isReturnPage: Boolean
+    private var isReturnCollection: Boolean
+    private var isReturnSet: Boolean
 
 
     init {
@@ -57,6 +67,14 @@ internal class SQLContext private constructor(
                 entityClass = parentType.getGeneric(0).rawClass!!
                 break
             }
+        }
+        returnType = method.returnType
+        isReturnPage = Page::class.java.isAssignableFrom(returnType)
+        isReturnCollection = Collection::class.java.isAssignableFrom(returnType)
+        isReturnSet = Set::class.java.isAssignableFrom(returnType)
+        if (isReturnPage || isReturnCollection) {
+            genericReturnType = ResolvableType.forType(method.genericReturnType)
+                    .getGeneric(0).rawClass
         }
         when {
             method.isAnnotationPresent(Select::class.java) -> {
@@ -105,14 +123,35 @@ internal class SQLContext private constructor(
 
         Optional.of(evaluateTests(select.testWheres, params))
                 .filter { it.isNotEmpty() }.ifPresent { sql.WHERE(*it) }
-
-        val returnType = method.returnType
-        if (Collection::class.java.isAssignableFrom(returnType)) {
-            val requiredType = ResolvableType.forType(method.genericReturnType)
-                    .getGeneric(0).rawClass
-            Asserts.notNull(requiredType, "集合 的泛型不能为空")
-            val result = sqlExecutor.selectForList(sql, params, requiredType!!)
-            return if (Set::class.java.isAssignableFrom(requiredType)) HashSet(result) else result
+        if (select.isPageQuery) {
+            Asserts.notNull(params, "分页查询参数不能为空")
+            Asserts.notNull(genericReturnType, "分页查询 的泛型不能为空")
+            Asserts.isTrue(!isReturnSet && (isReturnPage || isReturnCollection),
+                    "分页查询只支持返回List, Collection, Page")
+            val pageParam = when {
+                StringUtils.isEmpty(select.pageParam) -> when (params) {
+                    is Pageable -> params
+                    is Map<*, *> -> params.values.filterIsInstance<Pageable>().first()
+                    else -> null
+                }
+                params is Map<*, *> -> params[select.pageParam] as Pageable
+                else -> null
+            }
+            Asserts.notNull(pageParam, "分页查询参数Pageable不存在")
+            val count = sqlExecutor.count(sql, params)
+            if (count == 0L) {
+                return if (isReturnPage) Pages.EMPTY else emptyList<Any>()
+            }
+            val pageNum = pageParam!!.pageNum
+            val pageSize = pageParam.pageSize
+            val pageResult = sqlExecutor.selectForPage(sql, params, pageNum, pageSize, genericReturnType!!)
+            return if (isReturnPage) Pages.page(pageNum, pageSize, pageResult, count.toInt())
+            else PageList(pageNum, pageSize, pageResult, count.toInt())
+        }
+        if (isReturnCollection) {
+            Asserts.notNull(genericReturnType, "集合 的泛型不能为空")
+            val result = sqlExecutor.selectForList(sql, params, genericReturnType!!)
+            return if (isReturnSet) HashSet(result) else result
         }
         return sqlExecutor.selectForObject(sql, params, returnType)
     }

@@ -16,6 +16,11 @@ class PageList<E> : ArrayList<E> {
     constructor() : super()
     constructor(initialCapacity: Int) : super(initialCapacity)
     constructor(c: Collection<E>) : super(c)
+    constructor(pageNum: Int, pageSize: Int, results: List<E>, totalRecords: Int) : super(results) {
+        this.pageNum = pageNum
+        this.pageSize = pageSize
+        this.totalRecords = totalRecords
+    }
 
 }
 

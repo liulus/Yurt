@@ -9,7 +9,7 @@ import kotlin.math.min
  * @version V1.0
  * @since 2020/10/29
  */
-class PageQuery(
+open class PageQuery(
         pageNum: Int = DEFAULT_PAGE_NUM,
         pageSize: Int = DEFAULT_PAGE_SIZE
 ) : Pageable {

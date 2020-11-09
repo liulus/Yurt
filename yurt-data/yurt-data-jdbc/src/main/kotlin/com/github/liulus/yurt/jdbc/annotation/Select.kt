@@ -23,6 +23,8 @@ annotation class Select(
         val orderBy: String = "",
         val groupBy: String = "",
         val having: Array<String> = [],
+        val isPageQuery: Boolean = false,
+        val pageParam: String = "",
         val provider: String = "",
 )
 

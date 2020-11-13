@@ -9,5 +9,4 @@ dependencies {
     testCompile('ch.vorburger.mariaDB4j:mariaDB4j')
     testRuntimeClasspath('mysql:mysql-connector-java')
 
-
 }

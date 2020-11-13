@@ -17,7 +17,7 @@ import java.util.Collection;
  */
 public class JdbcRepositoryFactoryBean<T> implements MethodInterceptor, FactoryBean<T> {
 
-    private Class<T> repositoryInterface;
+    private final Class<T> repositoryInterface;
     private Class<?> entityClass;
     @Resource
     private SQLExecutor sqlExecutor;

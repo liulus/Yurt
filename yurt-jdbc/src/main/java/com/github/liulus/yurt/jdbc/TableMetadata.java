@@ -1,5 +1,6 @@
 package com.github.liulus.yurt.jdbc;
 
+import com.github.liulus.yurt.convention.cache.LRUCache;
 import com.github.liulus.yurt.convention.util.NameUtils;
 import org.springframework.beans.BeanUtils;
 
@@ -12,7 +13,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -21,17 +21,9 @@ import java.util.stream.Collectors;
  * @version V1.0
  * @since 2020/11/9
  */
-public class TableMetadata {
+class TableMetadata {
 
-    private static final int DEFAULT_CACHE_LIMIT = 128;
-
-    private static final Map<Class<?>, TableMetadata> TABLE_CACHE =
-            new LinkedHashMap<Class<?>, TableMetadata>(DEFAULT_CACHE_LIMIT, 0.75f, true) {
-                @Override
-                protected boolean removeEldestEntry(Map.Entry<Class<?>, TableMetadata> eldest) {
-                    return size() > DEFAULT_CACHE_LIMIT;
-                }
-            };
+    private static final Map<Class<?>, TableMetadata> TABLE_CACHE = new LRUCache<>();
 
     private Class<?> entityClass;
 

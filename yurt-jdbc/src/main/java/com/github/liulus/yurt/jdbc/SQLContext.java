@@ -1,5 +1,6 @@
 package com.github.liulus.yurt.jdbc;
 
+import com.github.liulus.yurt.convention.cache.LRUCache;
 import com.github.liulus.yurt.convention.data.Page;
 import com.github.liulus.yurt.convention.data.PageList;
 import com.github.liulus.yurt.convention.data.Pageable;
@@ -22,7 +23,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,15 +35,9 @@ import java.util.stream.Stream;
  * @version V1.0
  * @since 2020/11/10
  */
-public class SQLContext {
+class SQLContext {
 
-    private static final Map<String, SQLContext> CONTEXT_CACHE =
-            new LinkedHashMap<String, SQLContext>(128, 0.75f, true) {
-                @Override
-                protected boolean removeEldestEntry(Map.Entry<String, SQLContext> eldest) {
-                    return size() > 128;
-                }
-            };
+    private static final Map<String, SQLContext> CONTEXT_CACHE = new LRUCache<>();
 
     private final Class<?> interfaceClass;
     private Class<?> entityClass;

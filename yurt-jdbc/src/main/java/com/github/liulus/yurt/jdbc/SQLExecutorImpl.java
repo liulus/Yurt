@@ -146,4 +146,7 @@ public class SQLExecutorImpl implements SQLExecutor {
     }
 
 
+    public NamedParameterJdbcOperations getJdbcOperations() {
+        return namedParameterJdbcOperations;
+    }
 }

@@ -4,6 +4,7 @@ import ch.vorburger.mariadb4j.DB;
 import ch.vorburger.mariadb4j.DBConfiguration;
 import ch.vorburger.mariadb4j.DBConfigurationBuilder;
 import com.github.liulus.yurt.jdbc.SQLExecutorImpl;
+import com.github.liulus.yurt.jdbc.annotation.JdbcRepositoryScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -19,6 +20,7 @@ import javax.sql.DataSource;
  * @since 2020/11/10
  */
 @Configuration
+@JdbcRepositoryScan("com.github.liulus.yurt.repository")
 public class SpringTestConfig {
 
     @Bean

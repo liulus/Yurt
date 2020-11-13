@@ -25,6 +25,8 @@ public class GoodsRepositoryTest {
 
     @Resource
     private SQLExecutor sqlExecutor;
+    @Resource
+    private GoodsRepository goodsRepository;
 
     private Class<GoodsRepository> interfaceClass = GoodsRepository.class;
 

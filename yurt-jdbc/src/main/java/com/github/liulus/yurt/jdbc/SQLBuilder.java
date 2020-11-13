@@ -19,7 +19,10 @@ import java.util.Objects;
  * @version V1.0
  * @since 2020/11/10
  */
-public class SQLBuilder {
+class SQLBuilder {
+
+    private SQLBuilder() {
+    }
 
     private static final String SINGLE_PARAM = "param";
 

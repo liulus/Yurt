@@ -19,8 +19,9 @@ public class JdbcRepositoryFactoryBean<T> implements MethodInterceptor, FactoryB
 
     private final Class<T> repositoryInterface;
     private Class<?> entityClass;
+    private String dataSourceBeanName;
     @Resource
-    private SQLExecutor sqlExecutor;
+    private SQLExecutorContext sqlExecutorContext;
 
     public JdbcRepositoryFactoryBean(Class<T> repositoryInterface) {
         this.repositoryInterface = repositoryInterface;
@@ -35,6 +36,7 @@ public class JdbcRepositoryFactoryBean<T> implements MethodInterceptor, FactoryB
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
+        SQLExecutor sqlExecutor = sqlExecutorContext.getSQLExecutor(dataSourceBeanName);
         String methodName = invocation.getMethod().getName();
         switch (methodName) {
             case "insert":
@@ -46,7 +48,7 @@ public class JdbcRepositoryFactoryBean<T> implements MethodInterceptor, FactoryB
             case "selectById":
                 return sqlExecutor.selectById(entityClass, (Long) invocation.getArguments()[0]);
             case "selectByIds":
-                return sqlExecutor.selectByIds(entityClass, (Collection<Long>)invocation.getArguments()[0]);
+                return sqlExecutor.selectByIds(entityClass, (Collection<Long>) invocation.getArguments()[0]);
             default:
                 return SQLContext.getContext(repositoryInterface, invocation.getMethod())
                         .execute(sqlExecutor, invocation.getArguments());
@@ -62,4 +64,9 @@ public class JdbcRepositoryFactoryBean<T> implements MethodInterceptor, FactoryB
     public Class<T> getObjectType() {
         return repositoryInterface;
     }
+
+    public void setDataSourceBeanName(String dataSourceBeanName) {
+        this.dataSourceBeanName = dataSourceBeanName;
+    }
+
 }

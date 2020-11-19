@@ -1,27 +1,36 @@
 package com.github.liulus.yurt.jdbc;
 
+import com.github.liulus.yurt.convention.util.Asserts;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.ResolvableType;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.util.StringUtils;
 
-import javax.annotation.Resource;
+import javax.sql.DataSource;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author liulu
  * @version V1.0
  * @since 2020/11/10
  */
-public class JdbcRepositoryFactoryBean<T> implements MethodInterceptor, FactoryBean<T> {
-
+public class JdbcRepositoryFactoryBean<T> implements ApplicationContextAware, MethodInterceptor, FactoryBean<T> {
+    private static final Map<String, SQLExecutor> EXECUTOR_MAP = new ConcurrentHashMap<>(4, 1);
     private final Class<T> repositoryInterface;
     private Class<?> entityClass;
     private String dataSourceBeanName;
-    @Resource
-    private SQLExecutorContext sqlExecutorContext;
+    private SQLExecutor sqlExecutor;
 
     public JdbcRepositoryFactoryBean(Class<T> repositoryInterface) {
         this.repositoryInterface = repositoryInterface;
@@ -36,7 +45,6 @@ public class JdbcRepositoryFactoryBean<T> implements MethodInterceptor, FactoryB
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
-        SQLExecutor sqlExecutor = sqlExecutorContext.getSQLExecutor(dataSourceBeanName);
         String methodName = invocation.getMethod().getName();
         switch (methodName) {
             case "insert":
@@ -67,6 +75,45 @@ public class JdbcRepositoryFactoryBean<T> implements MethodInterceptor, FactoryB
 
     public void setDataSourceBeanName(String dataSourceBeanName) {
         this.dataSourceBeanName = dataSourceBeanName;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        Map<String, DataSource> dataSourceMap = applicationContext.getBeansOfType(DataSource.class);
+        Map<String, SQLExecutor> sqlExecutorMap = applicationContext.getBeansOfType(SQLExecutor.class);
+        if (StringUtils.hasText(dataSourceBeanName)) {
+            this.sqlExecutor = EXECUTOR_MAP.containsKey(dataSourceBeanName) ? EXECUTOR_MAP.get(dataSourceBeanName)
+                    : initSQLExecutor(dataSourceBeanName, dataSourceMap, sqlExecutorMap.values());
+            return;
+        }
+        Asserts.isTrue(dataSourceMap.size() == 1, "to many dataSource bean fund, please config your dataSource bean id");
+        if (EXECUTOR_MAP.size() == 1) {
+            this.sqlExecutor = EXECUTOR_MAP.values().iterator().next();
+            return;
+        }
+        this.sqlExecutor = new SQLExecutorImpl(dataSourceMap.values().iterator().next());
+        EXECUTOR_MAP.put("one", this.sqlExecutor);
+    }
+
+    private SQLExecutor initSQLExecutor(String dataSourceBeanName, Map<String, DataSource> dataSourceMap,
+                                        Collection<SQLExecutor> sqlExecutors) {
+        DataSource dataSource = Optional.of(dataSourceBeanName)
+                .map(dataSourceMap::get)
+                .orElseThrow(() -> new IllegalArgumentException("no dataSource bean with name " + dataSourceBeanName));
+
+        for (SQLExecutor executor : sqlExecutors) {
+            SQLExecutorImpl repositoryImpl = (SQLExecutorImpl) executor;
+            JdbcTemplate jdbcTemplate = (JdbcTemplate) repositoryImpl.getJdbcOperations().getJdbcOperations();
+            DataSource jdbcTemplateDataSource = jdbcTemplate.getDataSource();
+            if (Objects.equals(dataSource, jdbcTemplateDataSource)) {
+                EXECUTOR_MAP.put(dataSourceBeanName, executor);
+                return executor;
+            }
+        }
+
+        SQLExecutorImpl executor = new SQLExecutorImpl(dataSource);
+        EXECUTOR_MAP.put(dataSourceBeanName, executor);
+        return executor;
     }
 
 }

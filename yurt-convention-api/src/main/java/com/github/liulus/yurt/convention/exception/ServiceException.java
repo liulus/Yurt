@@ -13,11 +13,11 @@ public class ServiceException extends ServiceRuntimeException {
         super();
     }
 
-    protected ServiceException(String message) {
+    public ServiceException(String message) {
         super(message);
     }
 
-    protected ServiceException(String message, Throwable cause) {
+    public ServiceException(String message, Throwable cause) {
         super(message, cause);
     }
 

@@ -3,9 +3,6 @@ package com.github.liulus.yurt.jdbc;
 import com.github.liulus.yurt.jdbc.annotation.JdbcRepositoryScan;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.BeanClassLoaderAware;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.context.ResourceLoaderAware;
@@ -45,15 +42,6 @@ public class JdbcRepositoryScannerRegistrar implements ImportBeanDefinitionRegis
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
         AnnotationAttributes annoAttrs = AnnotationAttributes.fromMap(importingClassMetadata.getAnnotationAttributes(JdbcRepositoryScan.class.getName()));
         ClasspathRepositoryScanner scanner = new ClasspathRepositoryScanner(registry);
-
-        String beanName = "sqlExecutorContext";
-        if (!registry.containsBeanDefinition(beanName)) {
-            BeanDefinition beanDefinition = BeanDefinitionBuilder
-                    .genericBeanDefinition(SQLExecutorContext.class)
-                    .setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE)
-                    .getBeanDefinition();
-            registry.registerBeanDefinition(beanName, beanDefinition);
-        }
 
         if (annoAttrs == null) {
             return;

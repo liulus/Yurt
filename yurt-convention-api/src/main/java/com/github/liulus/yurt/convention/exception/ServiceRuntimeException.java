@@ -47,4 +47,7 @@ abstract class ServiceRuntimeException extends RuntimeException {
         this.code = serviceCode.code();
     }
 
+    public String getCode() {
+        return code;
+    }
 }

@@ -1,0 +1,21 @@
+dependencyManagement {
+    imports {
+        mavenBom 'org.apache.camel.springboot:camel-spring-boot-bom:3.4.4'
+
+    }
+}
+
+dependencies {
+    annotationProcessor('org.projectlombok:lombok')
+    compileOnly('org.projectlombok:lombok')
+
+    compile('org.springframework:spring-web')
+    compile('org.springframework.boot:spring-boot-starter-tomcat')
+    compile('org.apache.camel:camel-jackson')
+
+    compile('org.apache.camel.springboot:camel-spring-boot-starter')
+    compile('org.apache.camel.springboot:camel-rest-starter')
+    compile('org.apache.camel.springboot:camel-servlet-starter')
+
+    testCompile('junit:junit')
+}

@@ -13,11 +13,11 @@ public class ServiceValidException extends ServiceRuntimeException {
         super();
     }
 
-    protected ServiceValidException(String message) {
+    public ServiceValidException(String message) {
         super(message);
     }
 
-    protected ServiceValidException(String message, Throwable cause) {
+    public ServiceValidException(String message, Throwable cause) {
         super(message, cause);
     }
 

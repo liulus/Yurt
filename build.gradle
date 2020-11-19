@@ -23,7 +23,7 @@ allprojects {
 
     dependencyManagement {
         imports {
-            mavenBom 'org.springframework.boot:spring-boot-dependencies:2.2.5.RELEASE'
+            mavenBom 'org.springframework.boot:spring-boot-dependencies:2.3.4.RELEASE'
         }
         dependencies {
             dependency 'ch.vorburger.mariaDB4j:mariaDB4j:2.4.0'

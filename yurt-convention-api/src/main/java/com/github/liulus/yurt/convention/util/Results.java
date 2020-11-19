@@ -40,6 +40,20 @@ public abstract class Results {
         return result;
     }
 
+    public static <T> Result<T> failure(String code, String message) {
+        DefaultResult<T> result = new DefaultResult<>(code, message);
+        result.setSuccess(false);
+        result.setError(true);
+        return result;
+    }
+
+    public static <T> Result<T> error(String code, String message) {
+        DefaultResult<T> result = new DefaultResult<>(code, message);
+        result.setSuccess(false);
+        result.setError(true);
+        return result;
+    }
+
     public static <T> Result<T> error(ServiceCode serviceCode) {
         DefaultResult<T> result = new DefaultResult<>(serviceCode.code(), serviceCode.text());
         result.setSuccess(false);

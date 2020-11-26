@@ -17,6 +17,11 @@ abstract class ServiceRuntimeException extends RuntimeException {
         this.code = CommonCode.UNKNOWN_ERROR.code();
     }
 
+    protected ServiceRuntimeException(Throwable cause) {
+        super(cause);
+        this.code = CommonCode.UNKNOWN_ERROR.code();
+    }
+
     protected ServiceRuntimeException(String message) {
         super(message);
         this.code = CommonCode.UNKNOWN_ERROR.code();

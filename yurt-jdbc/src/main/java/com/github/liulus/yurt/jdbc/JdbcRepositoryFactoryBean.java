@@ -1,6 +1,5 @@
 package com.github.liulus.yurt.jdbc;
 
-import com.github.liulus.yurt.convention.util.Asserts;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.framework.ProxyFactory;
@@ -10,6 +9,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.ResolvableType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
@@ -86,7 +86,7 @@ public class JdbcRepositoryFactoryBean<T> implements ApplicationContextAware, Me
                     : initSQLExecutor(dataSourceBeanName, dataSourceMap, sqlExecutorMap.values());
             return;
         }
-        Asserts.isTrue(dataSourceMap.size() == 1, "to many dataSource bean fund, please config your dataSource bean id");
+        Assert.isTrue(dataSourceMap.size() == 1, "to many dataSource bean fund, please config your dataSource bean id");
         if (EXECUTOR_MAP.size() == 1) {
             this.sqlExecutor = EXECUTOR_MAP.values().iterator().next();
             return;

@@ -3,6 +3,7 @@ package com.github.liulus.yurt.convention.util;
 import org.springframework.context.expression.MapAccessor;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.Assert;
 
 import java.util.Map;
 
@@ -21,7 +22,7 @@ public abstract class SpelUtils {
     }
 
     public static Object getValue(String spel, Object root) {
-        Asserts.notNull(root, "root object can not be null");
+        Assert.notNull(root, "root object can not be null");
         StandardEvaluationContext context = new StandardEvaluationContext(root);
         if (root instanceof Map) {
             context.addPropertyAccessor(MAP_ACCESSOR);
@@ -30,7 +31,7 @@ public abstract class SpelUtils {
     }
 
     public static <T> T getValue(String spel, Object root, Class<T> returnType) {
-        Asserts.notNull(root, "root object can not be null");
+        Assert.notNull(root, "root object can not be null");
         StandardEvaluationContext context = new StandardEvaluationContext(root);
         if (root instanceof Map) {
             context.addPropertyAccessor(MAP_ACCESSOR);

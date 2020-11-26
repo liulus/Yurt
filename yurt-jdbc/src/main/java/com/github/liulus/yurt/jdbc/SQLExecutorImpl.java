@@ -1,6 +1,5 @@
 package com.github.liulus.yurt.jdbc;
 
-import com.github.liulus.yurt.convention.util.Asserts;
 import org.springframework.beans.BeanUtils;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
@@ -9,6 +8,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -44,39 +44,39 @@ public class SQLExecutorImpl implements SQLExecutor {
 
     @Override
     public <E> long insert(E entity) {
-        Asserts.notNull(entity, "insert with entity can not be null");
+        Assert.notNull(entity, "insert with entity can not be null");
         Class<?> entityClass = entity.getClass();
         SQL sql = SQLBuilder.insertSQL(entity);
         TableMetadata tableMetadata = TableMetadata.forClass(entityClass);
         KeyHolder keyHolder = new GeneratedKeyHolder();
         SqlParameterSource sqlParams = sqlParams(entity);
         namedParameterJdbcOperations.update(sql.toString(), sqlParams, keyHolder);
+        long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
         PropertyDescriptor keyPs = BeanUtils.getPropertyDescriptor(entityClass, tableMetadata.getIdField());
         // set key property
         if (keyPs != null) {
-            ReflectionUtils.invokeMethod(keyPs.getWriteMethod(), entity,
-                    Objects.requireNonNull(keyHolder.getKey()));
+            ReflectionUtils.invokeMethod(keyPs.getWriteMethod(), entity, id);
         }
-        return Objects.requireNonNull(keyHolder.getKey()).longValue();
+        return id;
     }
 
     @Override
     public <E> int updateIgnoreNull(E entity) {
-        Asserts.notNull(entity, "update with entity can not be null");
+        Assert.notNull(entity, "update with entity can not be null");
         SQL sql = SQLBuilder.updateSQL(entity, true);
         return namedParameterJdbcOperations.update(sql.toString(), sqlParams(entity));
     }
 
     @Override
     public <E> int deleteById(Class<E> eClass, Long id) {
-        Asserts.notNull(id, "id can not be null");
+        Assert.notNull(id, "id can not be null");
         SQL sql = SQLBuilder.deleteSQL(eClass);
         return namedParameterJdbcOperations.update(sql.toString(), sqlParams(id));
     }
 
     @Override
     public <E> E selectById(Class<E> eClass, Long id) {
-        Asserts.notNull(id, "id can not be null");
+        Assert.notNull(id, "id can not be null");
         SQL sql = SQLBuilder.selectByIdSQL(eClass);
         return selectForObject(sql, id, eClass);
     }

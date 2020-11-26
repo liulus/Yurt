@@ -7,10 +7,14 @@ import com.github.liulus.yurt.convention.data.ServiceCode;
  * @version V1.0
  * @since 2020/11/9
  */
-public class ServiceErrorException extends ServiceRuntimeException{
+public class ServiceErrorException extends ServiceRuntimeException {
 
     public ServiceErrorException() {
         super();
+    }
+
+    public ServiceErrorException(Throwable cause) {
+        super(cause);
     }
 
     public ServiceErrorException(String message) {
@@ -36,5 +40,5 @@ public class ServiceErrorException extends ServiceRuntimeException{
     public ServiceErrorException(ServiceCode serviceCode, Throwable cause) {
         super(serviceCode, cause);
     }
-    
+
 }

@@ -4,7 +4,6 @@ import com.github.liulus.yurt.convention.cache.LRUCache;
 import com.github.liulus.yurt.convention.data.Page;
 import com.github.liulus.yurt.convention.data.PageList;
 import com.github.liulus.yurt.convention.data.Pageable;
-import com.github.liulus.yurt.convention.util.Asserts;
 import com.github.liulus.yurt.convention.util.Pages;
 import com.github.liulus.yurt.convention.util.SpelUtils;
 import com.github.liulus.yurt.jdbc.annotation.Delete;
@@ -14,6 +13,7 @@ import com.github.liulus.yurt.jdbc.annotation.Select;
 import com.github.liulus.yurt.jdbc.annotation.Update;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
@@ -127,27 +127,29 @@ class SQLContext {
         Optional.of(evaluateTests(select.testWheres(), params))
                 .filter(a -> a.length > 0).ifPresent(sql::WHERE);
         if (select.isPageQuery()) {
-            Asserts.notNull(params, "分页查询参数不能为空");
-            Asserts.notNull(genericReturnType, "分页查询 的泛型不能为空");
-            Asserts.isTrue(!isReturnSet && (isReturnPage || isReturnCollection),
+            Assert.notNull(params, "分页查询参数不能为空");
+            Assert.notNull(genericReturnType, "分页查询 的泛型不能为空");
+            Assert.isTrue(!isReturnSet && (isReturnPage || isReturnCollection),
                     "分页查询只支持返回List, Collection, Page");
             Pageable pageParam = getPageParam(params);
-            Asserts.notNull(pageParam, "分页查询参数Pageable不存在");
-            long count = sqlExecutor.count(sql, params);
-            if (count == 0L) {
-                return Optional.of(isReturnPage).filter(Boolean::valueOf)
-                        .map((Function<Boolean, Object>) b -> Pages.EMPTY)
-                        .orElse(Collections.emptyList());
-            }
-            int pageNum = pageParam.getPageNum();
-            int pageSize = pageParam.getPageSize();
-            List<?> pageResult = sqlExecutor.selectForPage(sql, params, pageNum, pageSize, genericReturnType);
+            Assert.notNull(pageParam, "分页查询参数Pageable不存在");
+            if (!pageParam.isDisablePage()) {
+                long count = sqlExecutor.count(sql, params);
+                if (count == 0L) {
+                    return Optional.of(isReturnPage).filter(Boolean::valueOf)
+                            .map((Function<Boolean, Object>) b -> Pages.EMPTY)
+                            .orElse(Collections.emptyList());
+                }
+                int pageNum = pageParam.getPageNum();
+                int pageSize = pageParam.getPageSize();
+                List<?> pageResult = sqlExecutor.selectForPage(sql, params, pageNum, pageSize, genericReturnType);
 
-            return isReturnPage ? Pages.page(pageNum, pageSize, pageResult, count)
-                    : new PageList<>(pageNum, pageSize, pageResult, count);
+                return isReturnPage ? Pages.page(pageNum, pageSize, pageResult, count)
+                        : new PageList<>(pageNum, pageSize, pageResult, count);
+            }
         }
         if (isReturnCollection) {
-            Asserts.notNull(genericReturnType, "集合 的泛型不能为空");
+            Assert.notNull(genericReturnType, "集合 的泛型不能为空");
             List<?> result = sqlExecutor.selectForList(sql, params, genericReturnType);
             return isReturnSet ? new HashSet<>(result) : result;
         }

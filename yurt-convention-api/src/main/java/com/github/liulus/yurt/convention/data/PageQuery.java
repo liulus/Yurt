@@ -7,13 +7,14 @@ package com.github.liulus.yurt.convention.data;
  */
 public class PageQuery implements Pageable {
 
-    private static final int MAX_PAGE_SIZE = 200;
+    public static final int MAX_PAGE_SIZE = 200;
     private static final int DEFAULT_PAGE_NUM = 1;
     private static final int DEFAULT_PAGE_SIZE = 20;
 
     private int pageNum;
     private int pageSize;
     private boolean isCount;
+    private boolean disablePage;
 
     public PageQuery() {
         pageNum = DEFAULT_PAGE_NUM;
@@ -56,5 +57,14 @@ public class PageQuery implements Pageable {
 
     public void setCount(boolean count) {
         isCount = count;
+    }
+
+    @Override
+    public boolean isDisablePage() {
+        return disablePage;
+    }
+
+    public void setDisablePage(boolean disablePage) {
+        this.disablePage = disablePage;
     }
 }

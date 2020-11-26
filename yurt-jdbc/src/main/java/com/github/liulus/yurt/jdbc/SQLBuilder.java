@@ -1,11 +1,11 @@
 package com.github.liulus.yurt.jdbc;
 
-import com.github.liulus.yurt.convention.util.Asserts;
 import org.springframework.beans.BeanUtils;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.EmptySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -43,7 +43,7 @@ class SQLBuilder {
 
 
     public static SQL insertSQL(Object entity) {
-        Asserts.notNull(entity, "insert with entity can not be null");
+        Assert.notNull(entity, "insert with entity can not be null");
         Class<?> eClass = entity.getClass();
         TableMetadata tableMetadata = TableMetadata.forClass(eClass);
         Map<String, String> fieldColumnMap = tableMetadata.getFieldColumnMap();
@@ -65,7 +65,7 @@ class SQLBuilder {
     }
 
     public static SQL updateSQL(Object entity, boolean ignoreNull) {
-        Asserts.notNull(entity, "update with entity can not be null");
+        Assert.notNull(entity, "update with entity can not be null");
         Class<?> entityClass = entity.getClass();
         TableMetadata tableMetadata = TableMetadata.forClass(entityClass);
         Map<String, String> fieldColumnMap = tableMetadata.getFieldColumnMap();

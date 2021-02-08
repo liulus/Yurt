@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.github.liulus</groupId>
+    <artifactId>yurt</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <modules>
+        <module>yurt-convention-api</module>
+        <module>yurt-jdbc</module>
+        <!--        <module>lit-starters</module>-->
+        <!--        <module>lit-dependencies</module>-->
+    </modules>
+
+    <properties>
+        <persistence-api.version>1.0</persistence-api.version>
+        <servlet-api.version>3.1.0</servlet-api.version>
+        <!--        <spring.version>5.2.9.RELEASE</spring.version>-->
+        <spring-boot.version>2.2.5.RELEASE</spring-boot.version>
+        <spring-security.version>5.0.7.RELEASE</spring-security.version>
+        <spring-security-jwt.version>1.1.0.RELEASE</spring-security-jwt.version>
+
+        <!--        <mariadb.version>2.2.3</mariadb.version>-->
+        <!--        <mysql-connector.version>5.1.41</mysql-connector.version>-->
+        <!--        <mybatis.version>3.4.6</mybatis.version>-->
+        <!--        <mybatis.spring.version>1.3.2</mybatis.spring.version>-->
+
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>javax.persistence</groupId>
+                <artifactId>persistence-api</artifactId>
+                <version>${persistence-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.vorburger.mariaDB4j</groupId>
+                <artifactId>mariaDB4j</artifactId>
+                <version>2.4.0</version>
+            </dependency>
+            <!-- Import dependency management from Spring Boot -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>aliyun</id>
+            <url>https://maven.aliyun.com/repository/public</url>
+        </repository>
+        <repository>
+            <id>aliyun_code</id>
+            <url>http://code.aliyun.com/maven_/repository/raw/public</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>aliyun</id>
+            <url>https://maven.aliyun.com/repository/public</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <developers>
+        <developer>
+            <id>liu</id>
+            <name>liu lu</name>
+            <email>skary0812@yeah.net</email>
+        </developer>
+    </developers>
+</project>

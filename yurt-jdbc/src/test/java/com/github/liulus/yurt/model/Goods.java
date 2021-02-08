@@ -17,6 +17,8 @@ public class Goods {
     private Integer inventory;
     private Double price;
     private LocalDateTime gmtCreated;
+    private Boolean isDeleted;
+    private LocalDateTime gmtDeleted;
 
     public Long getId() {
         return id;
@@ -64,5 +66,21 @@ public class Goods {
 
     public void setGmtCreated(LocalDateTime gmtCreated) {
         this.gmtCreated = gmtCreated;
+    }
+
+    public Boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Boolean deleted) {
+        isDeleted = deleted;
+    }
+
+    public LocalDateTime getGmtDeleted() {
+        return gmtDeleted;
+    }
+
+    public void setGmtDeleted(LocalDateTime gmtDeleted) {
+        this.gmtDeleted = gmtDeleted;
     }
 }

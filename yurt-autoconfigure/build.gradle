@@ -1,5 +1,0 @@
-dependencies {
-    compileOnly(project(':yurt-jdbc'))
-
-    compile('org.springframework.boot:spring-boot')
-}

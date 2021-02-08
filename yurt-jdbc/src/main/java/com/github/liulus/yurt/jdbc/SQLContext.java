@@ -133,20 +133,22 @@ class SQLContext {
                     "分页查询只支持返回List, Collection, Page");
             Pageable pageParam = getPageParam(params);
             Assert.notNull(pageParam, "分页查询参数Pageable不存在");
-            if (!pageParam.isDisablePage()) {
-                long count = sqlExecutor.count(sql, params);
-                if (count == 0L) {
-                    return Optional.of(isReturnPage).filter(Boolean::valueOf)
-                            .map((Function<Boolean, Object>) b -> Pages.EMPTY)
-                            .orElse(Collections.emptyList());
-                }
-                int pageNum = pageParam.getPageNum();
-                int pageSize = pageParam.getPageSize();
-                List<?> pageResult = sqlExecutor.selectForPage(sql, params, pageNum, pageSize, genericReturnType);
-
-                return isReturnPage ? Pages.page(pageNum, pageSize, pageResult, count)
-                        : new PageList<>(pageNum, pageSize, pageResult, count);
+            if (pageParam.isDisablePage()) {
+                List<?> result = sqlExecutor.selectForList(sql, params, genericReturnType);
+                return isReturnPage ? Pages.page(pageParam, result, result.size()) : result;
             }
+            long count = sqlExecutor.count(sql, params);
+            if (count == 0L) {
+                return Optional.of(isReturnPage).filter(Boolean::valueOf)
+                        .map((Function<Boolean, Object>) b -> Pages.EMPTY)
+                        .orElse(Collections.emptyList());
+            }
+            int pageNum = pageParam.getPageNum();
+            int pageSize = pageParam.getPageSize();
+            List<?> pageResult = sqlExecutor.selectForPage(sql, params, pageNum, pageSize, genericReturnType);
+
+            return isReturnPage ? Pages.page(pageNum, pageSize, pageResult, count)
+                    : new PageList<>(pageNum, pageSize, pageResult, count);
         }
         if (isReturnCollection) {
             Assert.notNull(genericReturnType, "集合 的泛型不能为空");

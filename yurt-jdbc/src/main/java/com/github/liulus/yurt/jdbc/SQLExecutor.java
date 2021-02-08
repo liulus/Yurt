@@ -12,9 +12,13 @@ public interface SQLExecutor {
 
     <E> long insert(E entity);
 
+    <E> int batchInsert(Collection<E> eList);
+
     <E> int updateIgnoreNull(E entity);
 
     <E> int deleteById(Class<E> eClass, Long id);
+
+    <E> int deleteLogicalById(Class<E> entityClass, Long id);
 
     <E> E selectById(Class<E> eClass, Long id);
 
@@ -26,9 +30,8 @@ public interface SQLExecutor {
 
     <E> List<E> selectForPage(SQL sql, Object params, int pageNum, int pageSize, Class<E> requiredType);
 
-    long count(SQL var1, Object params);
+    long count(SQL sql, Object params);
 
-    int update(SQL var1, Object params);
-
+    int update(SQL sql, Object params);
 
 }

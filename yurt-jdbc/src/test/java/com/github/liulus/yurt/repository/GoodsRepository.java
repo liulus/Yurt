@@ -18,10 +18,15 @@ public interface GoodsRepository extends JdbcRepository<Goods> {
     @Select(where = "code = :code")
     Goods selectByCode(@Param("code") String code);
 
+    @Select(columns = "count(*)", where = "code = :code")
+    int countByCode(@Param("code") String code);
+
     @Select(testWheres = {
             @If(test = "code != null and code != ''", value = "code = :code"),
+            @If(test = "codes != null and codes.size() > 0", value = "code in ( :codes )"),
             @If(test = "inventory != null", value = "inventory > :inventory"),
             @If(test = "startTime != null", value = "gmt_created > :startTime"),
+            @If(test = "fullName != null", value = "full_name like :fullName"),
     }, orderBy = "gmt_created desc", isPageQuery = true)
     Page<Goods> selectByQuery(GoodsQuery query);
 

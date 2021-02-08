@@ -29,7 +29,7 @@ public interface Page<T> {
      *
      * @return 总记录数
      */
-    List<? extends T> getResults();
+    List<T> getResults();
 
     /**
      * 获取数据列表

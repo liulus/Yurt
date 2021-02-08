@@ -2,6 +2,8 @@ package com.github.liulus.yurt.jdbc;
 
 import com.github.liulus.yurt.convention.cache.LRUCache;
 import com.github.liulus.yurt.convention.util.NameUtils;
+import com.github.liulus.yurt.jdbc.annotation.GmtDeleted;
+import com.github.liulus.yurt.jdbc.annotation.IsDeleted;
 import org.springframework.beans.BeanUtils;
 
 import javax.persistence.Column;
@@ -26,21 +28,11 @@ class TableMetadata {
     private static final Map<Class<?>, TableMetadata> TABLE_CACHE = new LRUCache<>();
 
     private Class<?> entityClass;
-
-    /**
-     * 表名
-     */
     private String tableName;
-
-    /**
-     * 主键属性名
-     */
     private String idField;
-
-    /**
-     * 主键对应的列名
-     */
     private String idColumn;
+    private String isDeleted;
+    private String gmtDeleted;
 
     /**
      * 属性名和字段名映射关系的 map
@@ -82,11 +74,9 @@ class TableMetadata {
             Column column = field.getAnnotation(Column.class);
             String columnName = column != null ? column.name() : NameUtils.getUnderLineName(fieldName);
 
-            // 主键信息 : 有 @Id 注解的字段，没有默认是 类名+Id
-            if (field.isAnnotationPresent(Id.class) || ("id".equals(fieldName) && idField == null)) {
-                this.idField = fieldName;
-                this.idColumn = columnName;
-            }
+            // 初始化标记字段
+            initMarkedField(field, columnName);
+
             // 将字段对应的列放到 map 中
             PropertyDescriptor descriptor = BeanUtils.getPropertyDescriptor(eClass, fieldName);
             if (descriptor != null && descriptor.getReadMethod() != null && descriptor.getWriteMethod() != null) {
@@ -103,6 +93,23 @@ class TableMetadata {
                 || Modifier.isFinal(field.getModifiers())
                 || field.isAnnotationPresent(Transient.class)
                 || !BeanUtils.isSimpleProperty(field.getType());
+    }
+
+    private void initMarkedField(Field field, String columnName) {
+        String fieldName = field.getName();
+        // 主键信息 : 有 @Id 注解的字段，没有默认是 类名+Id
+        if (field.isAnnotationPresent(Id.class) || ("id".equals(fieldName) && idField == null)) {
+            this.idField = fieldName;
+            this.idColumn = columnName;
+        }
+        // is_deleted
+        if (field.isAnnotationPresent(IsDeleted.class) || ("isDeleted".equals(fieldName) && isDeleted == null)) {
+            this.isDeleted = columnName;
+        }
+        // gmt_deleted
+        if (field.isAnnotationPresent(GmtDeleted.class) || ("gmtDeleted".equals(fieldName) && gmtDeleted == null)) {
+            this.gmtDeleted = columnName;
+        }
     }
 
 
@@ -126,6 +133,14 @@ class TableMetadata {
 
     public String getTableName() {
         return tableName;
+    }
+
+    public String getIsDeleted() {
+        return isDeleted;
+    }
+
+    public String getGmtDeleted() {
+        return gmtDeleted;
     }
 
     public Map<String, String> getFieldColumnMap() {

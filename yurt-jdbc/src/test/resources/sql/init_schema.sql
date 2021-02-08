@@ -8,6 +8,8 @@ CREATE TABLE sign_product (
     full_name  VARCHAR(128) DEFAULT '' NOT NULL,
     inventory  INT DEFAULT 0           NOT NULL,
     price      DOUBLE(12, 3) DEFAULT 0 NOT NULL,
+    is_deleted TINYINT(1)    DEFAULT 0 NOT NULL,
+    gmt_deleted TIMESTAMP                       DEFAULT '2000-01-01',
     gmt_created TIMESTAMP                        DEFAULT current_timestamp,
     gmt_updated TIMESTAMP                        DEFAULT current_timestamp
     ON UPDATE current_timestamp

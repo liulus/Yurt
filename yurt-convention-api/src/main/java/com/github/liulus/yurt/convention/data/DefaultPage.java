@@ -14,10 +14,10 @@ public class DefaultPage<T> implements Page<T> {
 
     private int pageNum;
     private int pageSize;
-    private List<? extends T> results;
+    private List<T> results;
     private long totalRecords;
 
-    public DefaultPage(int pageNum, int pageSize, List<? extends T> results, long totalRecords) {
+    public DefaultPage(int pageNum, int pageSize, List<T> results, long totalRecords) {
         this.pageNum = pageNum;
         this.pageSize = pageSize;
         this.results = results;
@@ -28,11 +28,11 @@ public class DefaultPage<T> implements Page<T> {
         this(1, 20, Collections.emptyList(), 0);
     }
 
-    public DefaultPage(List<? extends T> results) {
+    public DefaultPage(List<T> results) {
         this(1, 20, results, results.size());
     }
 
-    public DefaultPage(Pageable pageable, List<? extends T> results, int totalRecords) {
+    public DefaultPage(Pageable pageable, List<T> results, int totalRecords) {
         this(pageable.getPageNum(), pageable.getPageSize(), results, totalRecords);
     }
 
@@ -56,11 +56,11 @@ public class DefaultPage<T> implements Page<T> {
     }
 
     @Override
-    public List<? extends T> getResults() {
+    public List<T> getResults() {
         return results == null ? Collections.emptyList() : results;
     }
 
-    public void setResults(List<? extends T> results) {
+    public void setResults(List<T> results) {
         this.results = results;
     }
 

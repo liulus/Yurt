@@ -26,6 +26,10 @@ class SQLBuilder {
 
     private static final String SINGLE_PARAM = "param";
 
+    private static final String DB2 = "DB2";
+    private static final String MYSQL = "MYSQL";
+    private static final String ORACLE = "ORACLE";
+
     /**
      * MySQL 分页，参数1 ：第几条开始( offset ); 参数2：查询多少条(pageSize)
      */
@@ -57,7 +61,7 @@ class SQLBuilder {
                 continue;
             }
             Object value = ReflectionUtils.invokeMethod(ps.getReadMethod(), entity);
-            if (!StringUtils.isEmpty(value)) {
+            if (Objects.nonNull(value)) {
                 sql.VALUES(entry.getValue(), tokenParam(k));
             }
         }
@@ -98,16 +102,35 @@ class SQLBuilder {
                 .WHERE(eq(tableMetadata.getIdColumn(), SINGLE_PARAM));
     }
 
+    public static SQL deleteLogicalSQL(Class<?> entityClass, String dbName) {
+        TableMetadata tableMetadata = TableMetadata.forClass(entityClass);
+        Assert.hasText(tableMetadata.getIsDeleted(), "logical delete must has is_deleted");
+        SQL sql = new SQL().UPDATE(tableMetadata.getTableName()).SET(tableMetadata.getIsDeleted() + " = 1");
+        if (StringUtils.hasText(tableMetadata.getGmtDeleted())) {
+            sql.SET(tableMetadata.getGmtDeleted() + " = " + nowSQL(dbName));
+        }
+        sql.WHERE(eq(tableMetadata.getIdColumn(), SINGLE_PARAM));
+        return sql;
+    }
+
     public static SQL selectByIdSQL(Class<?> entityClass) {
         TableMetadata tableMetadata = TableMetadata.forClass(entityClass);
-        return new SQL().SELECT(tableMetadata.getColumns()).FROM(tableMetadata.getTableName())
+        SQL sql = new SQL().SELECT(tableMetadata.getColumns()).FROM(tableMetadata.getTableName())
                 .WHERE(eq(tableMetadata.getIdColumn(), SINGLE_PARAM));
+        if (StringUtils.hasText(tableMetadata.getIsDeleted())) {
+            sql.WHERE(tableMetadata.getIsDeleted() + " = 0");
+        }
+        return sql;
     }
 
     public static SQL selectByIdsSQL(Class<?> entityClass) {
         TableMetadata tableMetadata = TableMetadata.forClass(entityClass);
-        return new SQL().SELECT(tableMetadata.getColumns()).FROM(tableMetadata.getTableName())
+        SQL sql = new SQL().SELECT(tableMetadata.getColumns()).FROM(tableMetadata.getTableName())
                 .WHERE(tableMetadata.getIdColumn() + " in (:param)");
+        if (StringUtils.hasText(tableMetadata.getIsDeleted())) {
+            sql.WHERE(tableMetadata.getIsDeleted() + " = 0");
+        }
+        return sql;
     }
 
     public static SqlParameterSource sqlParams(Object params) {
@@ -137,16 +160,32 @@ class SQLBuilder {
             throw new UnsupportedOperationException("unsupported operation build page sql unknow database");
         }
         dbName = dbName.toUpperCase();
-        if (dbName.contains("DB2")) {
+        if (dbName.contains(DB2)) {
             return String.format(DB2_PAGE_SQL, sql.toString(), pageSize * (pageNum - 1), pageSize * pageNum);
         }
-        if (dbName.contains("MYSQL")) {
+        if (dbName.contains(MYSQL)) {
             return String.format(MYSQL_PAGE_SQL, sql.toString(), pageSize * (pageNum - 1), pageSize);
         }
-        if (dbName.contains("ORACLE")) {
+        if (dbName.contains(ORACLE)) {
             return String.format(ORACLE_PAGE_SQL, sql.toString(), pageSize * pageNum, pageSize * (pageNum - 1));
         }
+        throw new UnsupportedOperationException("unsupported operation build page sql for database: " + dbName);
+    }
 
+    public static String nowSQL(String dbName) {
+        if (StringUtils.isEmpty(dbName)) {
+            throw new UnsupportedOperationException("unsupported operation build now sql unknow database");
+        }
+        dbName = dbName.toUpperCase();
+        if (dbName.contains(DB2)) {
+            return "SYSDATE";
+        }
+        if (dbName.contains(MYSQL)) {
+            return "NOW()";
+        }
+        if (dbName.contains(ORACLE)) {
+            return "SYSDATE";
+        }
         throw new UnsupportedOperationException("unsupported operation build page sql for database: " + dbName);
     }
 

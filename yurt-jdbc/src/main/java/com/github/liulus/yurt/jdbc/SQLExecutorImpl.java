@@ -1,5 +1,7 @@
 package com.github.liulus.yurt.jdbc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
@@ -29,6 +31,8 @@ import static com.github.liulus.yurt.jdbc.SQLBuilder.sqlParams;
  */
 public class SQLExecutorImpl implements SQLExecutor {
 
+    private static final Logger logger = LoggerFactory.getLogger(SQLExecutorImpl.class);
+
     private String dbName;
 
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
@@ -46,11 +50,12 @@ public class SQLExecutorImpl implements SQLExecutor {
     public <E> long insert(E entity) {
         Assert.notNull(entity, "insert with entity can not be null");
         Class<?> entityClass = entity.getClass();
-        SQL sql = SQLBuilder.insertSQL(entity);
+        String sql = SQLBuilder.insertSQL(entity).toString();
         TableMetadata tableMetadata = TableMetadata.forClass(entityClass);
         KeyHolder keyHolder = new GeneratedKeyHolder();
         SqlParameterSource sqlParams = sqlParams(entity);
-        namedParameterJdbcOperations.update(sql.toString(), sqlParams, keyHolder);
+        logger.debug("insert sql: {} \n params: {}", sql, sqlParams);
+        namedParameterJdbcOperations.update(sql, sqlParams, keyHolder);
         long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
         PropertyDescriptor keyPs = BeanUtils.getPropertyDescriptor(entityClass, tableMetadata.getIdField());
         // set key property
@@ -61,17 +66,50 @@ public class SQLExecutorImpl implements SQLExecutor {
     }
 
     @Override
+    public <E> int batchInsert(Collection<E> eList) {
+        if (CollectionUtils.isEmpty(eList)) {
+            return 0;
+        }
+        E entity = eList.iterator().next();
+        SQL sql = SQLBuilder.insertSQL(entity);
+
+        SqlParameterSource[] parameterSources = eList.stream()
+                .map(SQLBuilder::sqlParams).toArray(SqlParameterSource[]::new);
+        logger.debug("batchInsert sql: {} \n params: {}", sql, parameterSources);
+        int[] updateResult = namedParameterJdbcOperations.batchUpdate(sql.toString(), parameterSources);
+
+        int row = 0;
+        for (int res : updateResult) {
+            row += res;
+        }
+        return row;
+    }
+
+    @Override
     public <E> int updateIgnoreNull(E entity) {
         Assert.notNull(entity, "update with entity can not be null");
-        SQL sql = SQLBuilder.updateSQL(entity, true);
-        return namedParameterJdbcOperations.update(sql.toString(), sqlParams(entity));
+        String sql = SQLBuilder.updateSQL(entity, true).toString();
+        SqlParameterSource sqlParams = sqlParams(entity);
+        logger.debug("update sql: {} \n params: {}", sql, sqlParams);
+        return namedParameterJdbcOperations.update(sql, sqlParams);
     }
 
     @Override
     public <E> int deleteById(Class<E> eClass, Long id) {
-        Assert.notNull(id, "id can not be null");
-        SQL sql = SQLBuilder.deleteSQL(eClass);
-        return namedParameterJdbcOperations.update(sql.toString(), sqlParams(id));
+        Assert.notNull(id, "delete id can not be null");
+        String sql = SQLBuilder.deleteSQL(eClass).toString();
+        SqlParameterSource sqlParams = sqlParams(id);
+        logger.debug("delete sql: {} \n params: {}", sql, sqlParams);
+        return namedParameterJdbcOperations.update(sql, sqlParams);
+    }
+
+    @Override
+    public <E> int deleteLogicalById(Class<E> eClass, Long id) {
+        Assert.notNull(id, "delete logical id can not be null");
+        String sql = SQLBuilder.deleteLogicalSQL(eClass, getDbName()).toString();
+        SqlParameterSource sqlParams = sqlParams(id);
+        logger.debug("delete sql: {} \n params: {}", sql, sqlParams);
+        return namedParameterJdbcOperations.update(sql, sqlParams);
     }
 
     @Override
@@ -104,32 +142,43 @@ public class SQLExecutorImpl implements SQLExecutor {
 
     @Override
     public <E> List<E> selectForList(SQL sql, Object params, Class<E> requiredType) {
+        String sqlStr = sql.toString();
+        SqlParameterSource sqlParams = sqlParams(params);
+        logger.debug("select sql: {} \n params: {}", sql, sqlParams);
         if (BeanUtils.isSimpleProperty(requiredType)) {
-            return namedParameterJdbcOperations.queryForList(sql.toString(), sqlParams(params), requiredType);
+            return namedParameterJdbcOperations.queryForList(sqlStr, sqlParams, requiredType);
         }
         AnnotationRowMapper<E> rowMapper = new AnnotationRowMapper<>(requiredType);
-        return namedParameterJdbcOperations.query(sql.toString(), sqlParams(params), rowMapper);
+        return namedParameterJdbcOperations.query(sqlStr, sqlParams, rowMapper);
     }
 
     @Override
     public <E> List<E> selectForPage(SQL sql, Object params, int pageNum, int pageSize, Class<E> requiredType) {
         String pageSQL = SQLBuilder.pageSQL(sql, getDbName(), pageNum, pageSize);
+        SqlParameterSource sqlParams = sqlParams(params);
+        logger.debug("page sql: {} \n params: {}", sql, sqlParams);
         if (BeanUtils.isSimpleProperty(requiredType)) {
-            return namedParameterJdbcOperations.queryForList(pageSQL, sqlParams(params), requiredType);
+            return namedParameterJdbcOperations.queryForList(pageSQL, sqlParams, requiredType);
         }
         AnnotationRowMapper<E> rowMapper = new AnnotationRowMapper<>(requiredType);
-        return namedParameterJdbcOperations.query(pageSQL, sqlParams(params), rowMapper);
+        return namedParameterJdbcOperations.query(pageSQL, sqlParams, rowMapper);
     }
 
     @Override
     public long count(SQL sql, Object params) {
-        Long count = namedParameterJdbcOperations.queryForObject(sql.toCountSql(), sqlParams(params), Long.class);
+        String countSql = sql.toCountSql();
+        SqlParameterSource sqlParams = sqlParams(params);
+        logger.debug("count sql: {} \n params: {}", countSql, sqlParams);
+        Long count = namedParameterJdbcOperations.queryForObject(countSql, sqlParams, Long.class);
         return count == null ? 0L : count;
     }
 
     @Override
     public int update(SQL sql, Object params) {
-        return namedParameterJdbcOperations.update(sql.toString(), sqlParams(params));
+        String updateSql = sql.toString();
+        SqlParameterSource sqlParams = sqlParams(params);
+        logger.debug("update sql: {} \n params: {}", updateSql, sqlParams);
+        return namedParameterJdbcOperations.update(updateSql, sqlParams);
     }
 
 

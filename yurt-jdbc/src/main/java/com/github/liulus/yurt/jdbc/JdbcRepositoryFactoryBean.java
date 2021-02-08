@@ -46,17 +46,25 @@ public class JdbcRepositoryFactoryBean<T> implements ApplicationContextAware, Me
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
         String methodName = invocation.getMethod().getName();
+        Object argument = invocation.getArguments()[0];
         switch (methodName) {
+            case "toString":
+                return repositoryInterface.getName() + "<" + entityClass.getSimpleName() + ">";
             case "insert":
-                return sqlExecutor.insert(invocation.getArguments()[0]);
+                return sqlExecutor.insert(argument);
+            case "batchInsert":
+                return sqlExecutor.batchInsert((Collection<?>) argument);
             case "updateIgnoreNull":
-                return sqlExecutor.updateIgnoreNull(invocation.getArguments()[0]);
+                return sqlExecutor.updateIgnoreNull(argument);
             case "deleteById":
-                return sqlExecutor.deleteById(entityClass, (Long) invocation.getArguments()[0]);
+                return sqlExecutor.deleteById(entityClass, (Long) argument);
+            case "deleteLogicalById":
+                return sqlExecutor.deleteLogicalById(entityClass, (Long) argument);
             case "selectById":
-                return sqlExecutor.selectById(entityClass, (Long) invocation.getArguments()[0]);
+                return sqlExecutor.selectById(entityClass, (Long) argument);
             case "selectByIds":
-                return sqlExecutor.selectByIds(entityClass, (Collection<Long>) invocation.getArguments()[0]);
+                //noinspection unchecked
+                return sqlExecutor.selectByIds(entityClass, (Collection<Long>) argument);
             default:
                 return SQLContext.getContext(repositoryInterface, invocation.getMethod())
                         .execute(sqlExecutor, invocation.getArguments());

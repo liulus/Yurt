@@ -8,7 +8,7 @@ import java.util.Arrays;
  * @since 2020/11/9
  */
 public class SQL {
-    private SQLStatement sql = new SQLStatement();
+    private final SQLStatement sql = new SQLStatement();
 
 
     public SQL UPDATE(String table) {

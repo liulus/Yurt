@@ -14,13 +14,19 @@
     <dependencies>
         <dependency>
             <groupId>com.github.liulus</groupId>
-            <artifactId>yurt-convention-api</artifactId>
+            <artifactId>yurt-convention</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.persistence</groupId>
             <artifactId>persistence-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>

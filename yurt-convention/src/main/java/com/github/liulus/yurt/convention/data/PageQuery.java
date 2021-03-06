@@ -13,8 +13,8 @@ public class PageQuery implements Pageable {
 
     private int pageNum;
     private int pageSize;
-    private boolean isCount;
-    private boolean disablePage;
+    private boolean isCount = true;
+    private boolean pageEnabled = true;
 
     public PageQuery() {
         pageNum = DEFAULT_PAGE_NUM;
@@ -51,20 +51,20 @@ public class PageQuery implements Pageable {
     }
 
     @Override
+    public boolean isPageEnabled() {
+        return pageEnabled;
+    }
+
+    @Override
     public boolean isCount() {
         return isCount;
     }
 
-    public void setCount(boolean count) {
-        isCount = count;
+    public void disableCount() {
+        this.isCount = false;
     }
 
-    @Override
-    public boolean isDisablePage() {
-        return disablePage;
-    }
-
-    public void setDisablePage(boolean disablePage) {
-        this.disablePage = disablePage;
+    public void disablePage() {
+        this.pageEnabled = false;
     }
 }

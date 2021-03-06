@@ -1,5 +1,7 @@
 package com.github.liulus.yurt.jdbc;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -16,7 +18,8 @@ public interface JdbcRepository<E> {
      * @param entity 实体对象
      * @return id
      */
-    Long insert(E entity);
+    @NotNull
+    Long insert(@NotNull E entity);
 
     /**
      * 批量插入数据, 以第一条的插入数据为准
@@ -24,7 +27,7 @@ public interface JdbcRepository<E> {
      * @param eList 实体对象列表
      * @return 插入记录数
      */
-    int batchInsert(Collection<E> eList);
+    int batchInsert(@NotNull Collection<E> eList);
 
     /**
      * 更新数据 忽略null值
@@ -32,9 +35,9 @@ public interface JdbcRepository<E> {
      * @param entity 实体对象
      * @return 记录数
      */
-    int updateIgnoreNull(E entity);
+    int updateIgnoreNull(@NotNull E entity);
 
-    int deleteById(Long id);
+    int deleteById(@NotNull Long id);
 
     /**
      * 逻辑删除, 更改删除时间和删除标识
@@ -42,10 +45,10 @@ public interface JdbcRepository<E> {
      * @param id id
      * @return 记录数
      */
-    int deleteLogicalById(Long id);
+    int deleteLogicalById(@NotNull Long id);
 
-    E selectById(Long id);
+    E selectById(@NotNull Long id);
 
-    List<E> selectByIds(Collection<Long> ids);
+    List<E> selectByIds(@NotNull Collection<Long> ids);
 
 }

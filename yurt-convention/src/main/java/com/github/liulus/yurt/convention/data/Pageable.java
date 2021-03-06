@@ -25,7 +25,7 @@ public interface Pageable {
     /**
      * 是否关闭分页查询
      */
-    boolean isDisablePage();
+    boolean isPageEnabled();
 
     /**
      * 是否查询count

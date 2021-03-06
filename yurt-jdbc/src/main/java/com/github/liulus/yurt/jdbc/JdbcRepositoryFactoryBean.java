@@ -46,7 +46,10 @@ public class JdbcRepositoryFactoryBean<T> implements ApplicationContextAware, Me
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
         String methodName = invocation.getMethod().getName();
-        Object argument = invocation.getArguments()[0];
+        Object argument = Optional.ofNullable(invocation.getArguments())
+                .filter(args -> args.length > 0)
+                .map(args -> args[0])
+                .orElse(null);
         switch (methodName) {
             case "toString":
                 return repositoryInterface.getName() + "<" + entityClass.getSimpleName() + ">";

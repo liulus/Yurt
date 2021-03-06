@@ -126,17 +126,13 @@ class SQLContext {
 
         Optional.of(evaluateTests(select.testWheres(), params))
                 .filter(a -> a.length > 0).ifPresent(sql::WHERE);
-        if (select.isPageQuery()) {
-            Assert.notNull(params, "分页查询参数不能为空");
+
+        // 首先判断是不是分页查询
+        Pageable pageParam = getPageParam(params);
+        if (pageParam != null && pageParam.isPageEnabled()) {
             Assert.notNull(genericReturnType, "分页查询 的泛型不能为空");
             Assert.isTrue(!isReturnSet && (isReturnPage || isReturnCollection),
                     "分页查询只支持返回List, Collection, Page");
-            Pageable pageParam = getPageParam(params);
-            Assert.notNull(pageParam, "分页查询参数Pageable不存在");
-            if (pageParam.isDisablePage()) {
-                List<?> result = sqlExecutor.selectForList(sql, params, genericReturnType);
-                return isReturnPage ? Pages.page(pageParam, result, result.size()) : result;
-            }
             long count = sqlExecutor.count(sql, params);
             if (count == 0L) {
                 return Optional.of(isReturnPage).filter(Boolean::valueOf)
@@ -150,6 +146,11 @@ class SQLContext {
             return isReturnPage ? Pages.page(pageNum, pageSize, pageResult, count)
                     : new PageList<>(pageNum, pageSize, pageResult, count);
         }
+        if (isReturnPage) {
+            Assert.notNull(pageParam, "返回分页对象, 分页参数不能为空");
+            List<?> result = sqlExecutor.selectForList(sql, params, genericReturnType);
+            return Pages.page(pageParam, result, result.size());
+        }
         if (isReturnCollection) {
             Assert.notNull(genericReturnType, "集合 的泛型不能为空");
             List<?> result = sqlExecutor.selectForList(sql, params, genericReturnType);
@@ -160,16 +161,12 @@ class SQLContext {
 
     private Pageable getPageParam(Object params) {
         Pageable pageParam = null;
-        if (StringUtils.isEmpty(select.pageParam())) {
-            if (params instanceof Pageable) {
-                pageParam = (Pageable) params;
-            } else if (params instanceof Map) {
-                pageParam = (Pageable) ((Map<?, ?>) params).values()
-                        .stream().filter(v -> v instanceof Pageable)
-                        .findFirst().orElse(null);
-            }
+        if (params instanceof Pageable) {
+            pageParam = (Pageable) params;
         } else if (params instanceof Map) {
-            pageParam = (Pageable) ((Map<?, ?>) params).get(select.pageParam());
+            pageParam = (Pageable) ((Map<?, ?>) params).values()
+                    .stream().filter(v -> v instanceof Pageable)
+                    .findFirst().orElse(null);
         }
         return pageParam;
     }

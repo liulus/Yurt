@@ -1,5 +1,6 @@
 package com.github.liulus.yurt.model;
 
+import javax.persistence.Column;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 
@@ -17,7 +18,8 @@ public class Goods {
     private Integer inventory;
     private Double price;
     private LocalDateTime gmtCreated;
-    private Boolean isDeleted;
+    @Column(name = "is_deleted")
+    private Boolean deleted;
     private LocalDateTime gmtDeleted;
 
     public Long getId() {
@@ -68,12 +70,12 @@ public class Goods {
         this.gmtCreated = gmtCreated;
     }
 
-    public Boolean getIsDeleted() {
-        return isDeleted;
+    public Boolean getDeleted() {
+        return deleted;
     }
 
-    public void setIsDeleted(Boolean deleted) {
-        isDeleted = deleted;
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
     }
 
     public LocalDateTime getGmtDeleted() {

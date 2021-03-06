@@ -70,6 +70,7 @@ public class GoodsRepositoryTest {
         upProduct.setId(old.getId());
         upProduct.setCode(upCode);
         upProduct.setFullName(upName);
+        upProduct.setDeleted(true);
         goodsRepository.updateIgnoreNull(upProduct);
     }
 
@@ -154,7 +155,7 @@ public class GoodsRepositoryTest {
     public void selectList() {
 
         GoodsQuery query = new GoodsQuery();
-        query.setDisablePage(true);
+        query.disablePage();
         List<String> codes = Arrays.asList("893341", "213324", "123456");
         query.setCodes(codes);
 

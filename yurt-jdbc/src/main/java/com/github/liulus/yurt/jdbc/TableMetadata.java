@@ -78,8 +78,12 @@ class TableMetadata {
             initMarkedField(field, columnName);
 
             // 将字段对应的列放到 map 中
-            PropertyDescriptor descriptor = BeanUtils.getPropertyDescriptor(eClass, fieldName);
-            if (descriptor != null && descriptor.getReadMethod() != null && descriptor.getWriteMethod() != null) {
+            PropertyDescriptor ps = BeanUtils.getPropertyDescriptor(eClass, fieldName);
+            if (ps == null && fieldName.startsWith("is")) {
+                String lowerName = NameUtils.getFirstLowerName(fieldName.substring(2));
+                ps = BeanUtils.getPropertyDescriptor(eClass, lowerName);
+            }
+            if (ps != null && ps.getReadMethod() != null && ps.getWriteMethod() != null) {
                 fieldColumnMap.put(fieldName, columnName);
                 fieldTypeMap.put(fieldName, field.getType());
             }
@@ -98,16 +102,16 @@ class TableMetadata {
     private void initMarkedField(Field field, String columnName) {
         String fieldName = field.getName();
         // 主键信息 : 有 @Id 注解的字段，没有默认是 类名+Id
-        if (field.isAnnotationPresent(Id.class) || ("id".equals(fieldName) && idField == null)) {
+        if (field.isAnnotationPresent(Id.class) || ("id".equals(columnName) && idField == null)) {
             this.idField = fieldName;
             this.idColumn = columnName;
         }
         // is_deleted
-        if (field.isAnnotationPresent(IsDeleted.class) || ("isDeleted".equals(fieldName) && isDeleted == null)) {
+        if (field.isAnnotationPresent(IsDeleted.class) || ("is_deleted".equals(columnName) && isDeleted == null)) {
             this.isDeleted = columnName;
         }
         // gmt_deleted
-        if (field.isAnnotationPresent(GmtDeleted.class) || ("gmtDeleted".equals(fieldName) && gmtDeleted == null)) {
+        if (field.isAnnotationPresent(GmtDeleted.class) || ("gmt_deleted".equals(columnName) && gmtDeleted == null)) {
             this.gmtDeleted = columnName;
         }
     }

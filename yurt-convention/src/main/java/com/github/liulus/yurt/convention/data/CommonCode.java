@@ -7,9 +7,10 @@ package com.github.liulus.yurt.convention.data;
  */
 public enum CommonCode implements ServiceCode {
 
-    SUCCESS("1", "成功"),
+    SUCCESS("0", "成功"),
 
     INVALID_PARAM("C_0001", "无效的参数"),
+    INVALID_STATE("C_0002", "无效的状态"),
     NOT_NULL("INVALID_0001", "参数 {} 不能为null"),
     NOT_EMPTY("INVALID_0002", "参数 {} 不能为空"),
 

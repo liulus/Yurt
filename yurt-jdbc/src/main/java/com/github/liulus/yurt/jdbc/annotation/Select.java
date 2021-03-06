@@ -44,13 +44,4 @@ public @interface Select {
 
     String[] having() default {};
 
-    boolean isPageQuery() default false;
-
-    /**
-     * 多个参数指定分页参数的参数名
-     */
-    String pageParam() default "";
-
-    String provider() default "";
-
 }

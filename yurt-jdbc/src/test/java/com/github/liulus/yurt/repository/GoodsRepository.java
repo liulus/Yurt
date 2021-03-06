@@ -27,7 +27,7 @@ public interface GoodsRepository extends JdbcRepository<Goods> {
             @If(test = "inventory != null", value = "inventory > :inventory"),
             @If(test = "startTime != null", value = "gmt_created > :startTime"),
             @If(test = "fullName != null", value = "full_name like :fullName"),
-    }, orderBy = "gmt_created desc", isPageQuery = true)
+    }, orderBy = "gmt_created desc")
     Page<Goods> selectByQuery(GoodsQuery query);
 
 }

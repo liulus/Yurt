@@ -1,5 +1,7 @@
 package com.github.liulus.yurt.convention.data;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 import java.util.function.Function;
 
@@ -29,6 +31,7 @@ public interface Page<T> {
      *
      * @return 总记录数
      */
+    @NotNull
     List<T> getResults();
 
     /**
@@ -52,5 +55,16 @@ public interface Page<T> {
      * @param <R>         另外的数据类型
      * @return 分页对象 R
      */
-    <R> Page<T> map(Function<T, R> transformer);
+    @NotNull
+    <R> Page<R> simpleMap(Function<T, R> transformer);
+
+    /**
+     * 转成另一种数据类型的page
+     *
+     * @param data data
+     * @param <R>  另外的数据类型
+     * @return 分页对象 R
+     */
+    @NotNull
+    <R> Page<R> transform(List<R> data);
 }

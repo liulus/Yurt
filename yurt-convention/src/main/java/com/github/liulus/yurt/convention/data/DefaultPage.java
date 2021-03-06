@@ -1,5 +1,9 @@
 package com.github.liulus.yurt.convention.data;
 
+import com.github.liulus.yurt.convention.util.Pages;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.util.CollectionUtils;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -55,6 +59,7 @@ public class DefaultPage<T> implements Page<T> {
         this.pageSize = pageSize;
     }
 
+    @NotNull
     @Override
     public List<T> getResults() {
         return results == null ? Collections.emptyList() : results;
@@ -78,9 +83,20 @@ public class DefaultPage<T> implements Page<T> {
         return (int) ((totalRecords - 1) / pageSize + 1);
     }
 
+    @NotNull
     @Override
-    public <R> Page<T> map(Function<T, R> transformer) {
-        return new DefaultPage(pageNum, pageSize,
+    public <R> Page<R> simpleMap(Function<T, R> transformer) {
+        return new DefaultPage<>(pageNum, pageSize,
                 results.stream().map(transformer).collect(Collectors.toList()), totalRecords);
+    }
+
+    @NotNull
+    @Override
+    public <R> Page<R> transform(List<R> data) {
+        if (CollectionUtils.isEmpty(data)) {
+            //noinspection unchecked
+            return (Page<R>) Pages.EMPTY;
+        }
+        return new DefaultPage<>(pageNum, pageSize, data, totalRecords);
     }
 }

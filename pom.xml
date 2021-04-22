@@ -76,10 +76,6 @@
             <id>aliyun</id>
             <url>https://maven.aliyun.com/repository/public</url>
         </repository>
-        <repository>
-            <id>aliyun_code</id>
-            <url>http://code.aliyun.com/maven_/repository/raw/public</url>
-        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
@@ -87,6 +83,16 @@
             <url>https://maven.aliyun.com/repository/public</url>
         </pluginRepository>
     </pluginRepositories>
+
+    <!-- omitted xml -->
+    <distributionManagement>
+        <repository>
+            <!--必须与 settings.xml 的 id 一致-->
+            <id>yurts-public-content</id>
+            <name>content</name>
+            <url>https://yurts-maven.pkg.coding.net/repository/public/content/</url>
+        </repository>
+    </distributionManagement>
 
     <developers>
         <developer>

@@ -16,7 +16,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Select {
 
-    String value() default "";
+    String NOT_DELETED = "NOT_DELETED";
+
+    String COUNT = "count(*)";
 
     boolean distinct() default false;
 

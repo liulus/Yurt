@@ -19,12 +19,14 @@ import org.springframework.util.StringUtils;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -121,7 +123,15 @@ class SQLContext {
         Optional.of(select.orderBy()).filter(StringUtils::hasText).ifPresent(sql::ORDER_BY);
         Optional.of(select.groupBy()).filter(StringUtils::hasText).ifPresent(sql::GROUP_BY);
 
-        Optional.of(select.where()).filter(a -> a.length > 0).ifPresent(sql::WHERE);
+        String[] wheres = Arrays.stream(select.where())
+                .map(w -> {
+                    if (Objects.equals(w, Select.NOT_DELETED)) {
+                        Assert.hasText(metadata.getIsDeleted(), "logical delete condition must has is_deleted column");
+                        return metadata.getIsDeleted() + " = 0";
+                    }
+                    return w;
+                }).toArray(String[]::new);
+        Optional.of(wheres).filter(a -> a.length > 0).ifPresent(sql::WHERE);
         Optional.of(select.having()).filter(a -> a.length > 0).ifPresent(sql::HAVING);
 
         Optional.of(evaluateTests(select.testWheres(), params))

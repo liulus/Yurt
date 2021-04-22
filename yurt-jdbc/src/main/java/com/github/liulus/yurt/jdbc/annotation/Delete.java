@@ -16,8 +16,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Delete {
 
-    String value() default "";
-
     String from() default "";
 
     String[] where() default {};

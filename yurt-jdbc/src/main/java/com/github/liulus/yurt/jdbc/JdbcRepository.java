@@ -37,6 +37,12 @@ public interface JdbcRepository<E> {
      */
     int updateIgnoreNull(@NotNull E entity);
 
+    /**
+     * 根据id删除一条记录
+     *
+     * @param id 记录id
+     * @return 删除的记录数
+     */
     int deleteById(@NotNull Long id);
 
     /**
@@ -47,8 +53,20 @@ public interface JdbcRepository<E> {
      */
     int deleteLogicalById(@NotNull Long id);
 
+    /**
+     * 根据id查询一条记录
+     *
+     * @param id id
+     * @return 查询的记录
+     */
     E selectById(@NotNull Long id);
 
+    /**
+     * 根据id集合查询多条记录
+     *
+     * @param ids id列表
+     * @return 记录集合
+     */
     List<E> selectByIds(@NotNull Collection<Long> ids);
 
 }

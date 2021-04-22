@@ -16,8 +16,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Update {
 
-    String value() default "";
-
     /**
      * 表名, 可以不写, 默认当前repository接口泛型类关联的表
      *

@@ -59,7 +59,7 @@ public class ApiResponseHandler implements ResponseBodyAdvice<Object> {
         Result<Object> result = Results.success(body);
         if (body instanceof CharSequence) {
             response.getHeaders().setContentType(MediaType.APPLICATION_JSON_UTF8);
-            return JsonUtils.toJson(request);
+            return JsonUtils.toJson(result);
         }
         return result;
     }

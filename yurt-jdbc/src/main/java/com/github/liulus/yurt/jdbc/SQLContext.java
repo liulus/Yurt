@@ -136,6 +136,10 @@ class SQLContext {
 
         Optional.of(evaluateTests(select.testWheres(), params))
                 .filter(a -> a.length > 0).ifPresent(sql::WHERE);
+        Optional.of(evaluateTests(select.testJoin(), params))
+                .filter(a -> a.length > 0).ifPresent(sql::JOIN);
+        Optional.of(evaluateTests(select.testLeftJoin(), params))
+                .filter(a -> a.length > 0).ifPresent(sql::LEFT_OUTER_JOIN);
 
         // 首先判断是不是分页查询
         Pageable pageParam = getPageParam(params);

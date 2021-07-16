@@ -91,7 +91,12 @@ class SQLStatement {
     }
 
     private String countSQL(StringBuilder builder) {
-        sqlClause(builder, SELECT, Collections.singletonList("count(*)"), EMPTY, EMPTY, COMMA);
+        if (distinct) {
+            sqlClause(builder, SELECT + " COUNT(DISTINCT", select, EMPTY, EMPTY, COMMA);
+            builder.append(RIGHT_BRACKET);
+        } else {
+            sqlClause(builder, SELECT, Collections.singletonList("COUNT(*)"), EMPTY, EMPTY, COMMA);
+        }
         sqlClause(builder, FROM, tables, EMPTY, EMPTY, COMMA);
         joins(builder);
         sqlClause(builder, WHERE, where, LEFT_BRACKET, RIGHT_BRACKET, SPACE_AND);

@@ -28,11 +28,15 @@ public @interface Select {
 
     String join() default "";
 
+    If[] testJoin() default {};
+
     String innerJoin() default "";
 
     String outerJoin() default "";
 
     String leftJoin() default "";
+
+    If[] testLeftJoin() default {};
 
     String rightJoin() default "";
 
